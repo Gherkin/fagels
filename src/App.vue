@@ -1,5 +1,5 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Menu from './components/Menu.vue'
 import axios from 'axios'
 </script>
 
@@ -14,10 +14,13 @@ import axios from 'axios'
       <v-img id="image" @click="imageClick" :key="n" v-if="n"
         :src="bilder[n][k]"
       ></v-img>
-      <div id="overlay" ref="overlay" @click="imageClick">
-        <div :key="name" class="text">
-          {{name}}
-        </div>
+      <div id="overlay">
+        <Menu :data="taxons" :key="taxons"></Menu>
+        <div id="overlay-text-bg" @click.self="imageClick" ref="overlay">
+          <div :key="name" class="text">
+            {{name}}
+          </div>
+        </div> 
       </div>
     </div>
   </main>
@@ -28,7 +31,7 @@ import axios from 'axios'
 export default {
   name: 'App',
   components: { 
-    HelloWorld
+    Menu
   },
   data() {
     return ({
@@ -41,7 +44,8 @@ export default {
     })
   },
   methods: {
-    imageClick() {
+    imageClick(event) {
+      console.log(event.target.id);
       console.log('click!');
       if(this.clicked) {
         this.$refs.overlay.style.opacity = 0;
@@ -117,11 +121,17 @@ export default {
   right: 0;
   height: 100%;
   width: 100%;
-  background-color: rgba(193,219,227,0.5);
-  opacity: 0;
+  z-index: 10;
+  overflow: hidden;
 }
 
-#overlay .text {
+#overlay-text-bg {
+  background-color: rgba(193,219,227,0.5);
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+}
+#overlay-text-bg .text {
   color: #373737;
   font-size: 50px;
   position: absolute;
