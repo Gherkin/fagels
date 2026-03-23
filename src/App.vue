@@ -15,7 +15,7 @@ import axios from 'axios'
         :src="bilder[n][k]"
       ></v-img>
       <div id="overlay">
-        <Menu :data="taxons" :key="taxons"></Menu>
+        <Menu :data="taxons" :groups="taxonGroups" @update:selected="onSelectionUpdate"></Menu>
         <div id="overlay-text-bg" @click.self="imageClick" ref="overlay">
           <div :key="name" class="text">
             {{name}}
@@ -40,6 +40,8 @@ export default {
       k: undefined,
       name: undefined,
       taxons: undefined,
+      taxonGroups: undefined,
+      activeTaxons: {},
       clicked: false
     })
   },
@@ -57,12 +59,15 @@ export default {
       }
 
     },
+    onSelectionUpdate(selected) {
+      this.activeTaxons = selected;
+    },
     randomizeBird() {
       console.log('randomizing')
-      this.n = Object.keys(this.bilder)[Math.floor(Math.random() * Object.keys(this.bilder).length)];
+      const activeKeys = Object.keys(this.bilder).filter(key => this.activeTaxons[key]);
+      const pool = activeKeys.length > 0 ? activeKeys : Object.keys(this.bilder);
+      this.n = pool[Math.floor(Math.random() * pool.length)];
       this.k = Math.floor(Math.random() * this.bilder[this.n].length);
-     // this.n = 100116;
-     // this.k = 10;
       console.log(this.n)
       console.log(this.k)
       if(!(this.bilder[this.n][this.k].endsWith('jpg') || this.bilder[this.n][this.k].endsWith('jpeg'))) {
@@ -83,7 +88,10 @@ export default {
 
         axios.get("./taxons.json").then((response) => {
           this.taxons = response.data;
-          this.randomizeBird();
+          axios.get("./taxon-groups.json").then((r) => {
+            this.taxonGroups = r.data;
+            this.randomizeBird();
+          });
         });
       });
     }
