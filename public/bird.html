@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bird</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #bird-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+    #error {
+      color: #aaa;
+      font-family: sans-serif;
+      font-size: 1rem;
+      text-align: center;
+      padding: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <img id="bird-img" alt="bird" />
+  <div id="error"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const taxonId = params.get('id');
+
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    if (!taxonId) {
+      showError('No taxon id provided. Use ?id=TAXON_ID');
+    } else {
+      fetch('./bilder.json')
+        .then(r => r.json())
+        .then(bilder => {
+          const images = bilder[taxonId];
+          if (!images || images.length === 0) {
+            showError('No images found for taxon ' + taxonId);
+            return;
+          }
+          const jpegs = images.filter(i => i.endsWith('.jpg') || i.endsWith('.jpeg'));
+          const pool = jpegs.length > 0 ? jpegs : images;
+          const src = pool[Math.floor(Math.random() * pool.length)];
+          const img = document.getElementById('bird-img');
+          img.onload = () => { img.style.display = 'block'; };
+          img.onerror = () => { showError('Image failed to load'); };
+          img.src = src;
+        })
+        .catch(() => showError('Failed to load image data'));
+    }
+  </script>
+</body>
+</html>
