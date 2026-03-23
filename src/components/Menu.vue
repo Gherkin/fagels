@@ -10,6 +10,7 @@
       <div class="sidebar-actions">
         <button @click="selectAll">Alla</button>
         <button @click="selectNone">Ingen</button>
+        <button @click="collapseAll" title="Fäll ihop alla">▸▸</button>
       </div>
     </div>
     <div class="sidebar-list">
@@ -147,6 +148,9 @@ export default {
       const count = ids.filter(id => this.selected[id]).length;
       return count > 0 && count < ids.length;
     },
+    collapseAll() {
+      this.expanded = {};
+    },
     selectAll() {
       const sel = {};
       Object.keys(this.data).forEach(key => { sel[key] = true; });
@@ -205,6 +209,11 @@ export default {
   border: 1px solid #aaa;
   border-radius: 3px;
   background: #fff;
+}
+
+.sidebar-actions button:last-child {
+  padding: 2px 4px;
+  font-size: 0.65rem;
 }
 
 .sidebar-list {
