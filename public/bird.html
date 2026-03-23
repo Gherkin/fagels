@@ -47,23 +47,40 @@
     if (!taxonId) {
       showError('No taxon id provided. Use ?id=TAXON_ID');
     } else {
-      fetch('./bilder.json')
-        .then(r => r.json())
-        .then(bilder => {
-          const images = bilder[taxonId];
-          if (!images || images.length === 0) {
-            showError('No images found for taxon ' + taxonId);
-            return;
-          }
-          const jpegs = images.filter(i => i.endsWith('.jpg') || i.endsWith('.jpeg'));
-          const pool = jpegs.length > 0 ? jpegs : images;
-          const src = pool[Math.floor(Math.random() * pool.length)];
-          const img = document.getElementById('bird-img');
-          img.onload = () => { img.style.display = 'block'; };
-          img.onerror = () => { showError('Image failed to load'); };
-          img.src = src;
-        })
-        .catch(() => showError('Failed to load image data'));
+      const storageKey = 'bird_img_' + taxonId;
+      const isBack = params.get('side') === 'back';
+
+      function displaySrc(src) {
+        const img = document.getElementById('bird-img');
+        img.onload = () => { img.style.display = 'block'; };
+        img.onerror = () => { showError('Image failed to load'); };
+        img.src = src;
+      }
+
+      if (isBack) {
+        const cached = localStorage.getItem(storageKey);
+        if (cached) {
+          displaySrc(cached);
+        } else {
+          showError('No image cached for this card');
+        }
+      } else {
+        fetch('./bilder.json')
+          .then(r => r.json())
+          .then(bilder => {
+            const images = bilder[taxonId];
+            if (!images || images.length === 0) {
+              showError('No images found for taxon ' + taxonId);
+              return;
+            }
+            const jpegs = images.filter(i => i.endsWith('.jpg') || i.endsWith('.jpeg'));
+            const pool = jpegs.length > 0 ? jpegs : images;
+            const src = pool[Math.floor(Math.random() * pool.length)];
+            localStorage.setItem(storageKey, src);
+            displaySrc(src);
+          })
+          .catch(() => showError('Failed to load image data'));
+      }
     }
   </script>
 </body>
