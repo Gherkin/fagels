@@ -5,7 +5,7 @@
     icon="mdi-menu">
   </v-btn>
   <div v-if="isActive" class="sidebar">
-    <div class="sidebar-header">
+    <div class="sidebar-header" @click="isActive = false" style="cursor:pointer;">
       <span>Välj arter</span>
       <div class="sidebar-actions">
         <button @click="selectAll">Alla</button>
